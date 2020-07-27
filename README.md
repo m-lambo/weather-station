@@ -1,3 +1,15 @@
+# Instructions from Raspberry Pi Foundation Below Line
+
+## UML Class Diagram: https://app.lucidchart.com/documents/edit/9139b485-20e8-424b-907a-794a6da237ff
+
+Design Pattern: Observer
+
+ * Publisher: Data from Environmental Sensor
+ * Subscriber(s): Git Pages, Alexa Interface
+
+__________________________________________________________________________________________
+
+
 # Raspberry Pi Oracle Weather Station
 
 ## Installation
