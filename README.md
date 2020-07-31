@@ -7,6 +7,9 @@ Design Pattern: Observer
  * Publisher: Data from Environmental Sensor
  * Subscriber(s): Git Pages, Alexa Interface
 
+	- read_all() function returns measurements taken
+	- driver contains read_all(), initializes Publisher Object w/ the returned items from read_all function
+
 __________________________________________________________________________________________
 
 
