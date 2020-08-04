@@ -1,4 +1,4 @@
-from observer2 import Publisher, Subscriber
+from observer2 import Publisher, Subscriber, SubscriberDB, SubscriberVisualization, SubscriberAlexa
 import bme280
 import smbus2
 from time import sleep
@@ -14,19 +14,21 @@ def read_all():
     measurements = [data.humidity,data.pressure,data.temperature]
     return measurements
 
-publisher = Publisher(["humidity", "pressure", "temperature"])
-Alexa = Subscriber('Alexa Interface')
-Visualization = Subscriber('Python Graph')
+publisher = Publisher()
 
-publisher.register("humidity", Alexa)
-publisher.register("pressure", Alexa)
-publisher.register("temperature", Alexa)
-publisher.register("temperature", Visualization)
+display = Subscriber('I, the compiler')
+  # db = SubscriberDB(<dbObj.<table name>) ?
+visualization = SubscriberVisualization('Python Graph')
+interface = SubscriberAlexa('MQQT Broker')
 
-data = read_all()
+
+publisher.register(display, display.update)
+publisher.register(db, db.updateTable)
+publisher.register(visualization, visualization.graphicallyDisplay)
+publisher.register(interface, interface.transferDataToBroker)
+
+measurements = read_all()
 humidity = str(data[0])
 pressure = str(data[1])
 temperature = str(data[2])
-publisher.dispatch("humidity", "Humidity = " + humidity)
-publisher.dispatch("pressure", "Pressure = " + pressure)
-publisher.dispatch("temperature", "Temperature = " + temperature)
+publisher.dispatch(measurements)
