@@ -1,5 +1,4 @@
-from observer2 import Publisher, Subscriber, SubscriberDB
-from SubscriberDB import connectDB
+from observer2 import *
 import bme280
 import smbus2
 from time import sleep
@@ -18,13 +17,13 @@ def read_all():
 publisher = Publisher()
 
 display = Subscriber('I, the compiler')
-db = SubscriberDB('Atmospheric Conditions')
-visualization = SubscriberVisualization('Python Graph')
-interface = SubscriberAlexa('MQQT Broker')
+db = SubscriberDB('MariaDB')
+# visualization = SubscriberVisualization('Python Graph')
+# interface = SubscriberAlexa('MQQT Broker')
 
 
 publisher.register(display, display.update)
-publisher.register(db, db.updateTable)
+publisher.register(db, db.insert)
 
 #  publisher.register(visualization, visualization.graphicallyDisplay)
 #  publisher.register(interface, interface.transferDataToBroker)

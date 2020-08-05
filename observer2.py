@@ -6,16 +6,11 @@ class Subscriber:
 
 class SubscriberDB(Subscriber):
     import connectDB
-    def __init__(self, name):
-        self.name = name
-        super(SubscriberDB,self).__init__(Subscriber)
-        # initialize object to correspond with ATMOSPHERIC_MEASUREMENTS table in weather database
-    def updateTable(self, message):
-        print("Updated table " + self.name + " on MariaDB Platform.")
-        cursor.execute("INSERT INTO weather.ATMOSPHER_MEASUREMENTS(HUMIDITY, PRESSURE, TEMPERATURE) VALUES (?, ?, ?)",
-                      (message[0], message[1], message[2])) 
-connection = connectDB.establish_connection()
-cursor = setCursor(connection)
+def __init__(self, name):
+    super(SubscriberDB,self).__init__(Subscriber)
+def insert(self, message):
+    print("Updated table " + self.name + " on MariaDB Platform.")
+    cursor.execute("INSERT INTO weather.ATMOSPHER_MEASUREMENTS(HUMIDITY, PRESSURE, TEMPERATURE) VALUES (?, ?, ?)",(message[0], message[1], message[2]))
 # class SubscriberVisualization(Subscriber):
   # import python graph library
   #  def __init__(self, name):
@@ -36,11 +31,11 @@ class Publisher:
     def register(self, who, callback=None):
         if callback is None:
             callback = getattr(who, 'update')
-        self.subscriber[who] = callback
+        self.subscribers[who] = callback
   # map subscriber object to it's particular callback function
     def unregister(self, who):
-        del self.subscriber[who]
+        del self.subscribers[who]
     def dispatch(self, message):
-        for subscriber, callback in self.subscribers():
+        for subscriber, callback in self.subscribers.items():
             callback(message)
             
