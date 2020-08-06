@@ -4,13 +4,15 @@ class Subscriber:
     def update(self, message):
         print("{} got message '{}'".format(self.name,message))
 
-class SubscriberDB(Subscriber):
-    import connectDB
-def __init__(self, name):
-    super(SubscriberDB,self).__init__(Subscriber)
-def insert(self, message):
-    print("Updated table " + self.name + " on MariaDB Platform.")
-    cursor.execute("INSERT INTO weather.ATMOSPHER_MEASUREMENTS(HUMIDITY, PRESSURE, TEMPERATURE) VALUES (?, ?, ?)",(message[0], message[1], message[2]))
+class SubscriberDB:
+    def __init__(self, name, connection, cursor):
+        self.name = name
+        self.connection = connection
+        self.cursor = cursor
+    def insert(self, message):
+        print("Updated table " + self.name + " on MariaDB Platform.")
+        self.cursor.execute("INSERT INTO weather.ATMOSPHERIC_MEASUREMENTS(HUMIDITY, PRESSURE, TEMPERATURE) VALUES (?, ?, ?)",(message[0], message[1], message[2]))
+
 # class SubscriberVisualization(Subscriber):
   # import python graph library
   #  def __init__(self, name):
@@ -27,12 +29,10 @@ def insert(self, message):
 class Publisher:
     def __init__(self):
         self.subscribers = dict()
-    # helper method used in for loop to send messages
     def register(self, who, callback=None):
         if callback is None:
             callback = getattr(who, 'update')
         self.subscribers[who] = callback
-  # map subscriber object to it's particular callback function
     def unregister(self, who):
         del self.subscribers[who]
     def dispatch(self, message):
