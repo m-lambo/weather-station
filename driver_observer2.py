@@ -1,7 +1,9 @@
 from observer2 import *
+from Measurements import *
 import bme280
 import smbus2
 import connectDB
+import constants
 from time import sleep
 
 
@@ -12,7 +14,10 @@ bme280.load_calibration_params(bus,address)
 
 def read_all():
     data = bme280.sample(bus,address)
-    measurements = [data.humidity,data.pressure,data.temperature]
+    h = Humidity(data.humidity, constants.HUMIDITYUNITS, constants.HUMIDITYRANGE)
+    p = Pressure(data.pressure, constants.PRESSUREUNITS, constants.PRESSURERANGE)
+    t = Temperature(data.temperature, constants.TEMPUNITS, constants.TEMPRANGE)
+    measurements = [h.getValue(),t.getValue(),p.getValue()]
     return measurements
 
 
@@ -25,15 +30,16 @@ db = SubscriberDB('MariaDB', connection, cursor)
 # visualization = SubscriberVisualization('Python Graph')
 # interface = SubscriberAlexa('MQQT Broker')
 
-print("Attributes for SubscriberDB::")
-print(dir(db))
-print("List of Publisher's dictionary elements::")
-print(dir(publisher.__dict__))
 publisher.register(display)
 publisher.register(db, db.insert)
 
 #  publisher.register(visualization, visualization.graphicallyDisplay)
 #  publisher.register(interface, interface.transferDataToBroker)
 
+print("Obtaining first reading::")
 measurements = read_all()
 publisher.dispatch(measurements)
+print("Obtaining second reading::")
+measurements = read_all()
+publisher.dispatch(measurements)
+
