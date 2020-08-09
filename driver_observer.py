@@ -2,11 +2,11 @@ from observer import *
 from Measurements import *
 import bme280
 import smbus2
+import time
+import projectfunctions
 import connectDB
 import constants
-import time
 
-interval = 60 # used in loop
 port = 1
 address = 0x77
 bus = smbus2.SMBus(port)
@@ -14,7 +14,7 @@ bme280.load_calibration_params(bus,address)
 
 startTimeInTicks = time.time()  # setting up variables for looping function
 localTime = time.localtime(time.time())
-globalSeconds = localTime[5]
+currentSeconds = localTime[5]
 recording = 1
 
 def read_all():
@@ -24,12 +24,6 @@ def read_all():
     t = Temperature(data.temperature, constants.TEMPUNITS, constants.TEMPRANGE)
     measurements = [h.getValue(),t.getValue(),p.getValue()]
     return measurements
-
-def startOfMinute(seconds):
-    if globalSeconds == 0:
-        return True
-    else:
-        return False
 
 connection = connectDB.establish_connection()
 cursor = connectDB.setCursor(connection)
@@ -47,21 +41,24 @@ publisher.register(db, db.insert)
 #  publisher.register(interface, interface.transferDataToBroker)
 
 
-retBool = startOfMinute(globalSeconds)
+retBool = projectfunctions.startLoop(currentSeconds)
 while retBool is False:
-    localTime = time.localtime(time.time())
-    globalSeconds = localTime[5]
-    retBool = startOfMinute(globalSeconds)
+    nextTime = projectfunctions.waitOneSec(currentSeconds)
+    retBool = projectfunctions.startLoop(nextTime)
 
-else:
-    while recording < 10:
-        localTime = time.localtime(time.time())
-        globalSeconds = localTime[5]
-        if globalSeconds % 10 == 0:
-            retList = read_all()
-            print("Obtained recording " + str(recording) + " on second " + str(globalSeconds) + " of current minute...")
-            print()
-            publisher.dispatch(retList)
-            recording += 1
-        elif recording == 10:
-            print("Recorded 10 measurements")
+currentSeconds = nextTime
+print(str(currentSeconds))
+
+while recording <= 10:
+    nextTimeRecording = projectfunctions.waitOneSec(currentSeconds)
+    if nextTimeRecording == 0 or nextTimeRecording % 10 == 0:
+        retList = read_all()
+        print("Obtained recording: " + str(recording) + " on second " + str(currentSeconds) + " of current minute...")
+        print()
+        publisher.dispatch(retList)
+        recording += 1
+        currentSeconds = projectfunctions.waitOneSec(currentSeconds)
+    elif currentSeconds % 10 != 0:
+        nextTimeRecording = projectfunctions.waitOneSec(currentSeconds)
+    elif recording == 10:
+        print("Recorded 10 measurements.")
